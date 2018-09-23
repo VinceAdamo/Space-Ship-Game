@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset = "utf-8">
+		
+		<script>
+		
+		var DEFAULT_SPEED = 5;
+		
+		var starShip;
+		var alien;
+		
+		var positionY;
+		var positionX;
+		var shipPosition;
+		var alienPositionX;
+		var alienPositionY;
+		var alienPosition;
+		
+	    var endPositionTop = 25;
+		var endPositionBottom = endPositionTop + window.innerHeight - 100;
+		var endPositionLeft = 25;
+		var endPositionRight = endPositionLeft + window.innerWidth - 100;
+		
+		var endPositionTopAlien = 25;
+		var endPositionBottomAlien = endPositionTopAlien + window.innerHeight - 255;
+		var endPositionLeftAlien = 25;
+		var endPositionRightAlien = endPositionLeftAlien + window.innerWidth - 255;
+		
+		var speed = DEFAULT_SPEED;
+		var alienSpeed = 7;
+		
+		var hasReset = false;
+		
+		var timer;
+		
+		var rechargeBoost = false;
+		var boostDepleted = false;
+		var notUsingBoost = 0;
+		
+		var index = 40;
+		var alienDirection;
+		var alienBounce;
+		var hasBounced = false;
+		var bounceDirection;
+		
+		
+		var numOfSeconds = 0;
+		var frames = 0;
+		var numOfMinutes = 0;
+		var numOfHours = 0;
+		
+		var keyPressed = [];
+		
+		
+		function keyDown(event) {
+			keyPressed[event.keyCode] = true;
+		}
+		
+		function keyUp(event) {
+			keyPressed[event.keyCode] = false;
+		}
+	
+		function moveAlien(bounceDirection) {
+		
+			if (hasBounced == false) {
+				if (index == 50) {
+					alienDirection = Math.floor((Math.random() * 8) + 1);
+					index = 0;
+				} 
+			
+			} else {
+				if (bounceDirection == 'Down') {
+					alienDirection = 6;
+				} else if (bounceDirection == 'Up') {
+					alienDirection = 5;
+				} else if (bounceDirection == 'Left') {
+					alienDirection = 7;
+				} else if (bounceDirection == 'Right') {
+					alienDirection = 8;
+				} else if (bounceDirection == 'UpRight') {
+					alienDirection = 2;
+				} else if (bounceDirection == 'UpLeft') {
+					alienDirection = 1;
+				} else if (bounceDirection == 'DownRight') {
+					alienDirection = 4;
+				} else if (bounceDirection == 'DownLeft') {
+					alienDirection = 3;
+				}
+				
+				hasBounced = false;
+				index = 0;
+			}
+	
+			if (alienDirection == 1) {
+				alienPositionX -= alienSpeed;
+			    alien.style.left = alienPositionX + 'px';
+			    alienPositionY -= alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 2) {
+				alienPositionX += alienSpeed;
+				alien.style.left = alienPositionX + 'px';
+				alienPositionY -= alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 3) {
+				alienPositionX -= alienSpeed;
+				alien.style.left = alienPositionX + 'px';
+				alienPositionY += alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 4) { 
+				alienPositionX += alienSpeed;
+				alien.style.left = alienPositionX + 'px';
+				alienPositionY += alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 5) {
+				alienPositionY -= alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 6) {
+				alienPositionY += alienSpeed;
+				alien.style.top = alienPositionY + 'px';
+			} else if (alienDirection == 7) {
+				alienPositionX -= alienSpeed;
+				alien.style.left = alienPositionX + 'px';
+			} else if (alienDirection == 8) {
+				alienPositionX += alienSpeed;
+				alien.style.left = alienPositionX + 'px';
+			} 
+			
+			index++;
+		
+		}
+		
+		function bounce() {
+		
+			if (alienPositionY >= endPositionBottomAlien) {
+				hasBounced = true;
+				alienBounce = Math.floor((Math.random() * 3) + 1);
+				if (alienBounce == 1) {
+					bounceDirection = 'Up';
+					
+				} else if (alienBounce == 2) {
+					bounceDirection = 'UpLeft';
+					
+				} else if (alienBounce == 3) {
+					bounceDirection = 'UpRight';
+					
+				}
+		    } 
+			
+			if (alienPositionY <= endPositionTopAlien) {
+			    hasBounced = true;
+				alienBounce = Math.floor((Math.random() * 3) + 1);
+				if (alienBounce == 1) {
+					bounceDirection = 'Down';
+					
+				} else if (alienBounce == 2) {
+					bounceDirection = 'DownLeft';
+					
+				} else if (alienBounce == 3) {
+					bounceDirection = 'DownRight';
+					
+				}
+			}
+		    
+			if (alienPositionX >= endPositionRightAlien) {
+				hasBounced = true;
+				if (alienPositionY >= (window.innerHeight/2 + 50)) {
+					alienBounce = Math.floor((Math.random() * 2) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Left';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'UpLeft';
+					}
+				
+				} else if (alienPositionY <= (window.innerHeight/2 - 250)) {
+					alienBounce = Math.floor((Math.random() * 2) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Left';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'DownLeft';
+					}
+					
+				} else {
+					alienBounce = Math.floor((Math.random() * 3) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Left';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'DownLeft';
+					
+					} else if (alienBounce == 3) {
+						bounceDirection = 'UpLeft';
+	
+					}
+				}
+			}
+			
+			if (alienPositionX <= endPositionLeftAlien) {
+				hasBounced = true;
+				if (alienPositionY >= (window.innerHeight/2 + 50)) {
+					alienBounce = Math.floor((Math.random() * 2) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Right';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'UpRight';
+					}
+					
+				} else if (alienPositionY <= (window.innerHeight/2 - 250)) {
+					alienBounce = Math.floor((Math.random() * 2) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Right';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'DownRight'; 
+					}
+					
+				} else {
+					alienBounce = Math.floor((Math.random() * 3) + 1);
+					if (alienBounce == 1) {
+						bounceDirection = 'Right';
+					
+					} else if (alienBounce == 2) {
+						bounceDirection = 'DownRight';
+					
+					} else if (alienBounce == 3) {
+						bounceDirection = 'UpRight';
+					
+					}
+				}
+			}
+			
+			return bounceDirection;
+		
+		}
+		
+		function speedBoost() {
+		
+			var boostIndicator = document.getElementById("boostBar");
+			var amountOfBoost;
+			
+			if (boostIndicator.offsetWidth == 0) {
+				rechargeBoost = true;
+				boostDepleted = true;
+			
+			}
+			
+			if (keyPressed["65"] && !boostDepleted) {
+				document.getElementById("spaceShip").src = 'http://img3.wikia.nocookie.net/__cb20131124154844/galaxian/images/a/a9/Fast_Shot.png';
+				speed = 10;
+				rechargeBoost = false;
+				notUsingBoost = 0;
+				
+				if (keyPressed["37"] || keyPressed["38"] || keyPressed["39"] || keyPressed["40"]) {
+					amountOfBoost = boostIndicator.offsetWidth;
+					amountOfBoost -= 2;
+					boostIndicator.style.width = amountOfBoost + 'px';
+				} 
+				
+			} else {
+				document.getElementById("spaceShip").src = 'https://vignette.wikia.nocookie.net/galaxian/images/7/75/Galaga_Fighter.png/revision/latest?cb=20131124154815';
+				speed = DEFAULT_SPEED;
+				notUsingBoost++;
+				
+				if (notUsingBoost == 150) {
+					if (boostIndicator.offsetWidth != 200) {
+						rechargeBoost = true;
+						notUsingBoost = 0;
+					}
+					notUsingBoost = 0;
+				}
+				
+				if (rechargeBoost) {
+					amountOfBoost = boostIndicator.offsetWidth;
+					amountOfBoost += 2;
+					boostIndicator.style.width = amountOfBoost + 'px';
+					if (boostIndicator.offsetWidth == 200) {
+						rechargeBoost = false;
+						boostDepleted = false;
+					}
+				}
+				
+				
+			}
+			
+		
+		}
+		
+		function moveShip() {
+			
+			speedBoost();
+			
+			if (keyPressed["38"] && keyPressed["37"] && !keyPressed["39"] && !keyPressed["40"]) {
+				starShip.style.transform = "rotate(315deg)";
+				positionX -= (speed / (1.4));
+			    starShip.style.left = positionX + 'px';
+			    positionY -= (speed / (1.4));
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["38"] && keyPressed["39"]  && !keyPressed["37"] && !keyPressed["40"]) {
+				starShip.style.transform = "rotate(45deg)";
+				positionX += (speed / 1.4);
+				starShip.style.left = positionX + 'px';
+				positionY -= (speed/ 1.4);
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["40"] && keyPressed["37"]  && !keyPressed["39"] && !keyPressed["38"]) {
+				starShip.style.transform = "rotate(225deg)";
+				positionX -= (speed / 1.4);
+				starShip.style.left = positionX + 'px';
+				positionY += (speed / 1.4);
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["40"] && keyPressed["39"]  && !keyPressed["37"] && !keyPressed["38"]) { 
+				starShip.style.transform = "rotate(135deg)";
+				positionX += (speed / 1.4);
+				starShip.style.left = positionX + 'px';
+				positionY += (speed / 1.4);
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["38"]  && !keyPressed["39"] && !keyPressed["40"] && !keyPressed["37"]) {
+				starShip.style.transform = "rotate(0deg)";
+				positionY -= speed;
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["40"]  && !keyPressed["39"] && !keyPressed["38"] && !keyPressed["37"]) {
+				starShip.style.transform = "rotate(180deg)";
+				positionY += speed;
+				starShip.style.top = positionY + 'px';
+			} else if (keyPressed["37"]  && !keyPressed["39"] && !keyPressed["40"] && !keyPressed["38"]) {
+				starShip.style.transform = "rotate(270deg)";
+				positionX -= speed;
+				starShip.style.left = positionX + 'px';
+			} else if (keyPressed["39"]  && !keyPressed["38"] && !keyPressed["40"] && !keyPressed["37"]) {
+				starShip.style.transform = "rotate(90deg)";
+				positionX += speed;
+				starShip.style.left = positionX + 'px';
+			} 
+			
+		
+		}
+		
+		function startGame() {
+			
+			document.getElementById("leaderBoardDiv").style.display = "none";
+			starShip = document.getElementById("ship");
+			alien = document.getElementById("purpleAlien");
+			
+			document.addEventListener("keydown" , keyDown);
+			document.addEventListener("keyup" , keyUp);
+			
+			
+			shipPosition = starShip.getBoundingClientRect();
+		
+			positionX = shipPosition.left;
+			positionY = shipPosition.top;
+			
+			
+			alienPosition = alien.getBoundingClientRect();
+		
+			alienPositionX = alienPosition.left;
+			alienPositionY = alienPosition.top;
+			
+			timer = setInterval(game, 31);
+		}
+		
+		function gameOverF(gameTime) {
+			document.getElementById("spaceShip").src = 'http://pixelartmaker.com/art/fc43739adc8ef5e.png';
+			document.getElementById("crashed").style.display = "block";
+			// document.getElementById("reset").style.display = "block";
+			document.getElementById("yourTime").innerHTML = "Your survival time was: " + gameTime;
+			document.getElementById("yourTime").style.display = "block";
+			document.getElementById("scoreTextBox").style.display = "block";
+			document.getElementById("enterScoreName").style.display = "block";
+			document.getElementById("scoreTextBox").addEventListener("keydown" , function enterEvent(event) {
+				if (event.keyCode == 13) {
+					if (document.getElementById("scoreTextBox").value.length != 3) {
+						window.alert("Please enter a 3-letter nickname!");
+					} else {
+						leaderBoard(gameTime);
+						document.getElementById("scoreTextBox").style.display = "none";
+						document.getElementById("enterScoreName").style.display = "none";
+						document.getElementById("scoreTextBox").removeEventListener("keydown", enterEvent);
+					}
+				}
+					
+			});
+			
+		}
+		
+		function Leader(name, timeHours, timeMinutes, timeSeconds) {
+			this.name = name;
+			this.timeHours = timeHours;
+			this.timeMinutes = timeMinutes;
+			this.timeSeconds = timeSeconds;
+		    this.timeTotal = timeHours + ":" + timeMinutes + ":" + timeSeconds;
+		
+		}
+		
+		function leaderBoard(gameTime) {
+			
+			
+			var myTime = gameTime.split(":");
+
+			var leader1Time = document.getElementById("timeLine1").textContent;
+			var leader2Time = document.getElementById("timeLine2").textContent;
+			var leader3Time = document.getElementById("timeLine3").textContent;
+			var leader4Time = document.getElementById("timeLine4").textContent;
+			
+			var leader1Split = leader1Time.split(":");
+			var leader2Split = leader2Time.split(":");
+			var leader3Split = leader3Time.split(":");
+			var leader4Split = leader4Time.split(":");
+			
+			var myName = document.getElementById("scoreTextBox").value;
+			var leader1Name = document.getElementById("leaderLine1").textContent;
+			var leader2Name = document.getElementById("leaderLine2").textContent;
+			var leader3Name = document.getElementById("leaderLine3").textContent;
+			var leader4Name = document.getElementById("leaderLine4").textContent;
+			
+			var NUM_OF_LEADERS = 5;
+			var myLeaderArray = [];
+			
+			myLeaderArray[0] = new Leader(myName, myTime[0], myTime[1], myTime[2]);
+			myLeaderArray[1] = new Leader(leader1Name, leader1Split[0], leader1Split[1], leader1Split[2]);
+			myLeaderArray[2] = new Leader(leader2Name, leader2Split[0], leader2Split[1], leader2Split[2]);
+			myLeaderArray[3] = new Leader(leader3Name, leader3Split[0], leader3Split[1], leader3Split[2]);
+			myLeaderArray[4] = new Leader(leader4Name, leader4Split[0], leader4Split[1], leader4Split[2]);
+			
+			var index;
+			var index2;
+			var temp;
+			
+			for (index = 0; index < NUM_OF_LEADERS; index++) {
+				for (index2 = 0; index2 < NUM_OF_LEADERS - 1; index2++) {
+					if (myLeaderArray[index].timeHours > myLeaderArray[index2].timeHours) {
+						temp = myLeaderArray[index];
+						myLeaderArray[index] = myLeaderArray[index2];
+						myLeaderArray[index2] = temp;
+						
+					} else if (myLeaderArray[index].timeMinutes > myLeaderArray[index2].timeMinutes && myLeaderArray[index].timeHours == myLeaderArray[index2].timeHours) {
+						temp = myLeaderArray[index];
+						myLeaderArray[index] = myLeaderArray[index2];
+						myLeaderArray[index2] = temp;
+						
+					} else if (myLeaderArray[index].timeSeconds > myLeaderArray[index2].timeSeconds && myLeaderArray[index].timeHours == myLeaderArray[index2].timeHours && myLeaderArray[index].timeMinutes == myLeaderArray[index2].timeMinutes) {
+						temp = myLeaderArray[index];
+						myLeaderArray[index] = myLeaderArray[index2];
+						myLeaderArray[index2] = temp;
+						
+					}
+				
+				}
+			
+			}
+			
+			document.getElementById("leaderLine1").textContent = myLeaderArray[0].name;
+			document.getElementById("leaderLine2").textContent = myLeaderArray[1].name;
+			document.getElementById("leaderLine3").textContent = myLeaderArray[2].name;
+			document.getElementById("leaderLine4").textContent = myLeaderArray[3].name;
+	
+			document.getElementById("timeLine1").textContent = myLeaderArray[0].timeTotal;
+			document.getElementById("timeLine2").textContent = myLeaderArray[1].timeTotal;
+			document.getElementById("timeLine3").textContent = myLeaderArray[2].timeTotal;
+			document.getElementById("timeLine4").textContent = myLeaderArray[3].timeTotal;
+			
+			document.getElementById("leaderBoardDiv").style.display = "block";
+		    document.getElementById("reset").style.display = "block";
+		
+		}
+		
+		function stopGame(gameTime) {
+			
+			if (positionY >= endPositionBottom || positionY <= endPositionTop) {
+				clearInterval(timer);
+				gameOverF(gameTime);
+		    } 
+			
+		    if ((positionX) >= endPositionRight || positionX <= endPositionLeft) {
+				clearInterval(timer);
+				gameOverF(gameTime);
+		    } 
+			
+			if (((positionX + 50) >= alienPositionX && positionX <= alienPositionX + 200) && ((positionY + 50) >= (alienPositionY + 15) && positionY <= (alienPositionY + 175))) {
+				clearInterval(timer);
+				gameOverF(gameTime);
+			}
+		}
+		
+		function countUpTimer() {
+			var actualTime;
+			
+			frames++;
+		
+			if (frames == 31) {
+				numOfSeconds++;
+				frames = 0;
+			}
+			
+			if (numOfHours < 10) {
+				if (numOfMinutes < 10) {
+			
+					if (numOfSeconds < 10) {
+						actualTime = "0" + numOfHours + ":0" + numOfMinutes + ":0" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+				
+					} else if (numOfSeconds >= 10 && numOfSeconds < 60) {
+						actualTime = "0" + numOfHours + ":0" + numOfMinutes + ":" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+			
+					} else if (numOfSeconds >= 60) {
+						numOfMinutes++;
+						numOfSeconds = 0;
+			
+					}
+			
+				} else if (numOfMinutes >= 10 && numOfMinutes < 60) {
+				
+					if (numOfSeconds < 10) {
+						actualTime = "0" + numOfHours + ":" + numOfMinutes + ":0" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+				
+					} else if (numOfSeconds >= 10 && numOfSeconds < 60) {
+						actualTime = "0" + numOfHours + ":" + numOfMinutes + ":" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+			
+					} else if (numOfSeconds >= 60) {
+						numOfMinutes++;
+						numOfSeconds = 0;
+			
+					}
+			
+			
+				} else if (numOfMinutes >= 60) {
+					numOfHours++;
+					numOfMinutes = 0;
+					numOfSeconds = 0;
+				
+				}
+				
+			} else if (numOfHours >= 10 && numOfHours < 60) {
+				if (numOfMinutes < 10) {
+			
+					if (numOfSeconds < 10) {
+						actualTime = numOfHours + ":0" + numOfMinutes + ":0" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+				
+					} else if (numOfSeconds >= 10 && numOfSeconds < 60) {
+						actualTime = numOfHours + ":0" + numOfMinutes + ":" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+			
+					} else if (numOfSeconds >= 60) {
+						numOfMinutes++;
+						numOfSeconds = 0;
+			
+					}
+			
+				} else if (numOfMinutes >= 10 && numOfMinutes < 60) {
+				
+					if (numOfSeconds < 10) {
+						actualTime = "0" + numOfHours + "0:" + numOfMinutes + ":0" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+				
+					} else if (numOfSeconds >= 10 && numOfSeconds < 60) {
+						actualTime = "0" + numOfHours + "0:" + numOfMinutes + ":" + numOfSeconds;
+						document.getElementById("timerNumbers").innerHTML = actualTime;
+			
+					} else if (numOfSeconds >= 60) {
+						numOfMinutes++;
+						numOfSeconds = 0;
+			
+					}
+			
+				} else if (numOfMinutes >= 60) {
+					numOfHours++;
+					numOfMinutes = 0;
+					numOfSeconds = 0;
+				
+				}
+				
+			}
+			
+			return actualTime;
+			
+		}
+		
+		function game() {
+			var gameTime;
+			var bounceDirection;
+			
+			gameTime = countUpTimer();
+			bounceDirection = bounce();
+			moveShip();
+			moveAlien(bounceDirection);
+			stopGame(gameTime);
+		}
+		
+		function reset() {
+			starShip.style.left = "48.25%";
+			starShip.style.top = "40%";
+			alien.style.left = "200px";
+			alien.style.top = "200px";
+			starShip.style.transform = "rotate(0deg)";
+			document.getElementById("boostBar").style.width = "200px";
+			rechargeBoost = false;
+			boostDepleted = false;
+			document.getElementById("reset").style.display = "none";
+			document.getElementById("crashed").style.display = "none";
+			document.getElementById("yourTime").style.display = "none";
+			document.getElementById("start").style.display = "block";
+			document.getElementById("spaceShip").src = 'https://vignette.wikia.nocookie.net/galaxian/images/7/75/Galaga_Fighter.png/revision/latest?cb=20131124154815';
+			numOfSeconds = 0;
+			frames = 0;
+			numOfMinutes = 0;
+			numOfHours = 0;
+			document.getElementById("timerNumbers").innerHTML = "00:00:00";
+			document.getElementById("scoreTextBox").value = "";
+			
+		}
+		
+		function hideButton() {
+			document.getElementById("start").style.display = "none";
+		}
+		
+		</script>
+		
+		<style>
+		
+		body {
+			background-image: url("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/moving-through-stars-in-space_-1zccenlb__F0000.png");
+		}
+		
+		
+		
+		#left {
+			position: fixed;
+			background-color: rgb(255, 145, 0);
+			top: 0;
+			bottom: 0;
+			left: 0;
+			width: 25px;
+		}
+		
+		#right {
+			position: fixed;
+			background-color: rgb(255, 145, 0);
+			top: 0;
+			bottom: 0;
+			right: 0;
+			width: 25px;
+		}
+		
+		#top {
+			position: fixed;
+			background-color: rgb(255, 145, 0);
+			left: 0;
+			right: 0;
+			height: 25px;
+			top: 0;
+		}
+		
+		#bottom {
+			position: fixed;
+			background-color: rgb(255, 145, 0);
+			left: 0;
+			right: 0;
+			height: 25px;
+			bottom: 0;
+		}
+		
+		#ship {
+			width: 50px;
+			height: 50px;
+			display: block;
+			position: absolute;
+			top: 40%;
+			left: 48.25%;
+		}
+		
+		#spaceShip {
+			width: 50px;
+			height: 50px;
+		}
+		
+		#start {
+			display: block;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -170px 0 0 -70px;
+			width: 140px;
+			height: 40px;
+			font-size: 20px;
+			border: none;
+			border-radius: 10px;
+			background-color: rgb(255, 145, 0);
+			font-weight: bold;
+			color: rgb(255, 255, 255);
+			outline: none;
+			cursor: pointer;
+			box-shadow: 0 7px rgb(127, 127, 138);
+			font-family: "Lucida Console";
+		}
+		
+		#reset {
+			display: none;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -170px 0 0 -70px;
+			width: 140px;
+			height: 40px;
+			font-size: 20px;
+			border: none;
+			border-radius: 10px;
+			background-color: rgb(255, 145, 0);
+			font-weight: bold;
+			color: rgb(255, 255, 255);
+			outline: none;
+			cursor: pointer;
+			box-shadow: 0 7px rgb(127, 127, 138);
+			font-family: "Lucida Console";
+		}
+		
+		#crashed {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -220px 0 0 -150px;
+			text-align: center;
+			width: 300px;
+			height: 40px;
+			font-size: 35px;
+			font-weight: bold;
+			color: rgb(255, 0, 0);
+			outline: none;
+			font-family: "Lucida Console";
+			display: none;
+		}
+		
+		#yourTime {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -70px 0 0 -255px;
+			text-align: center;
+			width: 510px;
+			height: 40px;
+			font-size: 25px;
+			font-weight: bold;
+			color: rgb(128, 0, 255);
+			background-color: rgb(0, 0, 0);
+			outline: none;
+			font-family: "Lucida Console";
+			display: none;
+			border: 2px solid rgb(255, 255, 255);
+			line-height: 43px;
+		}
+		
+		
+		#purpleAlien {
+			display: block;
+			position: absolute;
+			width: 200px;
+			height: 200px;
+			top: 200px;
+			left: 200px;
+			/* border: 1px solid rgb(255, 255, 255); */
+		}
+		
+		#spaceAlien {
+			width: 200px;
+			height: 200px;
+		}
+		
+		#boostBar {
+			display: block;
+			position: absolute;
+			width: 200px;
+			height: 17px;
+			top: 4px;
+			left: 1000px;
+			background-color: rgb(255, 255, 255);
+		}
+		
+		#boostBarBorder {
+			display: block;
+			position: absolute;
+			width: 204px;
+			height: 21px;
+			top: 2px;
+			left: 998px;
+			background-color: rgb(0, 0, 0);
+		}
+		
+		#boostWords {
+			display: block;
+			position: absolute;
+			top: 3px;
+			left: 935px;
+			width: 50px;
+			height: 21px;
+		}
+		
+		#boostWords p {
+			color: rgb(0, 0, 0);
+			font-size: 16px;
+			text-align: center;
+			vertical-align: middle;
+			line-height: 21px;
+			top: 0px;
+			margin-top: 0px;
+			font-weight: bold;
+			font-family: "Lucida Console";
+		}
+		
+		#survivalTimer {
+			display: block;
+			position: absolute;
+			width: 120px;
+			height: 21px;
+			top: 2px;
+			left: 78px;
+			background-color: rgb(0, 0, 0);
+		}
+		
+		#timerNumbers {
+			color: rgb(255, 255, 255);
+			font-size: 21px;
+			text-align: center;
+			vertical-align: middle;
+			line-height: 21px;
+			top: 0px;
+			margin-top: 2px;
+			font-weight: bold;
+			font-family: "Lucida Console";
+		}
+		
+		#leaderBoardDiv {
+			top: 50%;
+			left: 50%;
+			position: absolute;
+			width: 510px;
+			margin: 60px 0 0 -255px;
+			text-align: center;
+			background-color: rgb(0, 0, 0);
+			border: 2px solid rgb(255, 255, 255);
+		}
+		
+		#leaderBoardTitle {
+			color: rgb(128, 0, 255);
+			font-size: 23px;
+			font-weight: bold;
+			font-family: "Lucida Console";
+		}
+		
+		.leaderBoardlines {
+			color: rgb(255, 145, 0);
+			font-size: 20px;
+			font-weight: bold;
+			font-family: "Lucida Console";
+		}
+		
+		#scoreTextBox {
+			background-color: rgb(255, 255, 255);
+			color: rgb(0, 0, 0);
+			font-size: 18px;
+			border: 2px solid rgb(255,145,0);
+			width: 100px;
+			height: 10px;
+			padding: 12px;
+			top: 50%;
+			left: 50%;
+			position: absolute;
+			margin: 0px 0 0 103px;
+			font-family: "Lucida Console";
+			text-align: center;
+			font-weight: bold;
+			display: none;
+		}
+		
+		#enterScoreName {
+			background-color: rgb(0, 0, 0);
+			color: rgb(255, 145, 0);
+			font-size: 18px;
+			border: 2px solid rgb(255,255,255);
+			width: 310px;
+			height: 34px;
+			top: 50%;
+			left: 50%;
+			position: absolute;
+			margin: 0px 0 0 -223px;
+			font-family: "Lucida Console";
+			text-align: center;
+			font-weight: bold;
+			display: none;
+			line-height: 35px;
+		}
+		
+		</style>
+	</head>
+	
+	<body>
+
+	<div id="left"></div>
+	<div id="right"></div>
+	
+	<div id="bottom"></div>
+	<div id="top"></div>
+	
+	<div id = "purpleAlien">
+		<img id = "spaceAlien" src = "http://rubiksarcadebar.com/rubiksarcadebar.com/wp-content/uploads/2016/09/purple-alien.png" alt = "Alien"></img>
+	</div>
+	
+	<div id="ship">
+		<img id="spaceShip" src="https://vignette.wikia.nocookie.net/galaxian/images/7/75/Galaga_Fighter.png/revision/latest?cb=20131124154815" alt = "Ship"></img>
+	</div>
+	
+	<p>
+		<button id = "start" onclick="startGame(), hideButton()">START</button>
+	</p>
+	
+	<p>
+		<button id = "reset" onclick="reset()">RESET</button>
+	</p>
+	
+	<p id = "crashed">You Crashed!</p>
+	
+	<p id = "yourTime"></p>
+	
+	<div id = "boostBarBorder"></div>
+	
+	<div id = "boostBar"></div>
+	
+	<div id = "boostWords"><p>Boost:</p></div>
+	
+	<div id = "survivalTimer"><p id = "timerNumbers">00:00:00</p></div>
+
+	<p id = "enterScoreName">Enter a 3-letter nickname:</p>
+	
+	<input id = "scoreTextBox" type = "text" value = "" maxlength = "3"/>
+	
+	<div id = "leaderBoardDiv">
+		<p id = "leaderBoardTitle">BEST TIMES</p>
+		<p class = "leaderBoardlines">1. <span id = "leaderLine1">000</span>......................<span id = "timeLine1">00:00:00</span></p>
+		<p class = "leaderBoardlines">2. <span id = "leaderLine2">000</span>......................<span id = "timeLine2">00:00:00</span></p>
+		<p class = "leaderBoardlines">3. <span id = "leaderLine3">000</span>......................<span id = "timeLine3">00:00:00</span></p>
+		<p class = "leaderBoardlines">4. <span id = "leaderLine4">000</span>......................<span id = "timeLine4">00:00:00</span></p>
+	</div> 
+	</body>
+</html>
